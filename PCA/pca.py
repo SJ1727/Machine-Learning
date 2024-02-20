@@ -26,5 +26,3 @@ def calculate_principal_components(X, components=None):
 
 def project_onto_components(X, components):
     return np.dot(X, components)
-
-print("Hello")
