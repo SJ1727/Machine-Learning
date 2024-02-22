@@ -1,5 +1,9 @@
 venv 
 __pycache__
+
+# Automatically downloaded when run code
 MNIST
+
+# To big for github
 mnist_train.csv
 mnist_test.csv

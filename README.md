@@ -6,6 +6,7 @@ This repository is a collection of various machine learning algorithms.
 - Kernel Principal Components Analysis (KPCA)
 - K Nearest Neighbours (KNN)
 - K Means Clustering
+- Multilayer Perceptron
 
 # Prerequisites
 
