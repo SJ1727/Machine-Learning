@@ -161,8 +161,8 @@ class MatMul(TensorOperation):
 
     def _backward(self):
         # TODO: Check if these are right
-        self.a.grad = np.matmul(self.out.grad, np.transpose(self.b.data, axes=(0, 2, 1)), axes=[(1, 2), (1, 2), (1, 2)])
-        self.b.grad = np.matmul(np.transpose(self.a.data, axes=(0, 2, 1)), self.out.grad, axes=[(1, 2), (1, 2), (1, 2)])
+        self.a.grad = np.matmul(self.out.grad, np.moveaxis(self.b.data, -1, -2), axes=[(-2, -1), (-2, -1), (-2, -1)])
+        self.b.grad = np.matmul(np.moveaxis(self.a.data, -1, -2), self.out.grad, axes=[(-2, -1), (-2, -1), (-2, -1)])
 
 class SoftMax(TensorOperation):
     def __init__(self):
@@ -171,8 +171,9 @@ class SoftMax(TensorOperation):
 
     def forward(self, a):
         self.a = a
+        sums = np.broadcast_to(np.sum(np.exp(a.data), axis=(-2, -1)), a.data.shape[::-1]).T
         self.out = Tensor(
-            np.array(np.exp(a.data) / np.sum(np.exp(a.data), axis=(1, 2))[:, np.newaxis, np.newaxis]),
+            np.array(np.exp(a.data) / sums),
             _children=(a,)
         )
         self.out.grad_fn = self._backward
@@ -182,26 +183,3 @@ class SoftMax(TensorOperation):
         # TODO: CHECK THIS
         jacobian = np.matmul(self.out.data, -self.out.data.T) + np.diag(self.out.data)
         self.a.grad = np.matmul(jacobian, self.out.grad)
-
-class CrossEntropyLoss:
-    def __init__(self):
-        self.a = None
-        self.actual = None
-        self.softmax = SoftMax()
-
-    def __call__(self, *args):
-        return self.forward(*args)
-
-    def forward(self, a, actual):
-        self.a = a
-        self.actual = actual
-        s_a = self.softmax(a)
-        self.out = Tensor(
-            (actual * Log()(s_a)).data,
-            _children=(a,)
-        )
-        self.out.grad_fn = self._backward
-        return Sum()(self.out)
-
-    def _backward(self):
-        self.a.grad = self.a.data - self.actual.data
