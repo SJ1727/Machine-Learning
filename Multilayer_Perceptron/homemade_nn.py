@@ -61,3 +61,7 @@ class StochasticGradientDescent:
     def step(self):
         for parameter in self._parameters:
             parameter.data -= np.sum(parameter.grad, axis=0) * self.lr
+    
+    def zero_grad(self):
+        for parameter in self._parameters:
+            parameter.grad = 0
