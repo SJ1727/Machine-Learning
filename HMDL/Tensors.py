@@ -187,3 +187,20 @@ class SoftMax(TensorOperation):
         # TODO: CHECK THIS
         jacobian += np.matmul(self.out.data, -self.out.data.T) + np.diag(self.out.data)
         self.a.grad += np.matmul(jacobian, self.out.grad)
+
+class Tanh(TensorOperation):
+    def __init__(self) -> None:
+        super().__init__()
+        self.a = None
+    
+    def forward(self, a):
+        self.a = a
+        self.out = Tensor(
+            np.tanh(a.data),
+            _children=(a,)
+        )
+        self.out.grad_fn = self._backward
+        return self.out
+    
+    def _backward(self):
+        self.a.grad = np.reciprocal(np.cosh(self.a.data) ** 2)
