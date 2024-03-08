@@ -14,18 +14,19 @@ class LinearLayer:
     def parameters(self):
         return (self.weights, self.bias)
 
-class MultilayerPerceptron:
-    def __init__(self):
-        self.l1 = LinearLayer(784, 32)
-        self.r1 = ht.ReLU()
-        self.l2 = LinearLayer(32, 10)
-        self._parameters = (*self.l1.parameters(), *self.l2.parameters())
+class ReLUMultilayerPerceptron:
+    def __init__(self, layer_sizes):
+        self._layers = [LinearLayer(in_size, out_size) for in_size, out_size in zip(layer_sizes, layer_sizes[1:])]
+        self._parameters = tuple(parameter for layer in self._layers for parameter in layer.parameters())
 
     def forward(self, x):
-        x1 = self.l1(x)
-        x2 = self.r1(x1)
-        x3 = self.l2(x2)
-        return x3
+        for layer in self._layers:
+            x = layer.forward(x)
+
+            if layer is not self._layers[-1]:
+                x = ht.ReLU()(x)
+
+        return x
 
     def parameters(self):
         return self._parameters
