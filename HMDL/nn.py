@@ -53,3 +53,25 @@ class CrossEntropyLoss:
 
     def _backward(self):
         self.a.grad = self.a.data - self.actual.data
+
+class MSELoss:
+    def __init__(self):
+        self.a = None
+        self.actual = None
+
+    def __call__(self, *args):
+        return self.forward(*args)
+
+    def forward(self, a, actual):
+        self.a = a
+        self.actual = actual
+        error = self.a - self.actual
+        self.out = ht.Tensor(
+            (error * error).data / self.actual.data.shape[-1],
+            _children=(a,)
+        )
+        self.out.grad_fn = self._backward
+        return ht.Sum()(self.out)
+
+    def _backward(self):
+        self.a.grad = 2 / self.actual.data.shape[-1] * (self.a.data - self.actual)
