@@ -4,6 +4,7 @@ This repository is a collection of various machine learning algorithms.
 # Algorithms included in repository
 - Principal Components Analysis (PCA)
 - Kernel Principal Components Analysis (KPCA)
+- Linear Discriminant Analysis (LDA)
 - K Nearest Neighbours (KNN)
 - K Means Clustering
 - DBSCAN
